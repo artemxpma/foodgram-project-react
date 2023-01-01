@@ -1,12 +1,12 @@
 from django.db import models
 from django.utils.text import slugify
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db.models import UniqueConstraint
 
 from colorfield.fields import ColorField
 
+# from users.models import User
 from django.contrib.auth import get_user_model
 User = get_user_model()
-# from users.models import User
 
 
 class Ingridient(models.Model):
@@ -15,6 +15,7 @@ class Ingridient(models.Model):
         editable=False,
         blank=False
     )
+    measurement = models.TextField(max_length=64)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name, allow_unicode=True)
@@ -67,6 +68,7 @@ class Recipy(models.Model):
     )
     ingridients = models.ManyToManyField(
         Ingridient,
+        through='IngridientValue',
         db_index=True,
         related_name='recipes',
     )
@@ -78,10 +80,6 @@ class Recipy(models.Model):
     time = models.PositiveIntegerField(
         max_length=3,
         blank=False,
-        validators=[
-            MaxValueValidator(360),
-            MinValueValidator(1)
-        ]
     )
 
     # def get_absolute_url(self):
@@ -100,9 +98,10 @@ class Recipy(models.Model):
 
     class Meta:
         unique_together = ('name',)  # can be changed to unique in field
+        verbose_name_plural = "Recipes"
 
 
-class IgridientValue(models.Model):
+class IngridientValue(models.Model):
     ingridient = models.ForeignKey(
         Ingridient,
         db_index=True,
@@ -116,7 +115,38 @@ class IgridientValue(models.Model):
     value = models.PositiveIntegerField(
         max_length=3,
         blank=False,
-        validators=[
-            MaxValueValidator(10000),
-            MinValueValidator(1)
-        ])
+    )
+
+
+class Favourites(models.Model):
+    user = models.ForeignKey(
+        User,
+        related_name='favourites',
+        on_delete=models.CASCADE
+    )
+    recipy = models.ForeignKey(
+        Recipy,
+        related_name='favourites',
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        constraints = [UniqueConstraint(fields=['user', 'recipy'],  # might be possible to do by unique together
+                                        name='unique_favourite')]
+
+
+class Cart(models.Model):
+    user = models.ForeignKey(
+        User,
+        related_name='cart',
+        on_delete=models.CASCADE
+    )
+    ingridient = models.ForeignKey(
+        Ingridient,
+        related_name='cart',
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        constraints = [UniqueConstraint(fields=['user', 'ingridient'],
+                                        name='unique_favourite')]
