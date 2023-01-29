@@ -1,36 +1,79 @@
-# from django.contrib.auth.models import AbstractUser, UserManager
+from django.db import models
+from django.db.models import UniqueConstraint
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
+
+# User = get_user_model()
+
+
+class User(AbstractUser):
+    """Custom user model."""
+    email = models.EmailField(
+        'email address',
+        max_length=254,
+        unique=True,
+    )
+    first_name = models.CharField(
+        max_length=150,
+        validators=[
+            RegexValidator(
+                regex=r'^[\w.@+-]+$',
+                message='Invalid First Name',
+            )
+        ]
+    )
+    second_name = models.CharField(
+        max_length=150,
+        validators=[
+            RegexValidator(
+                regex=r'^[\w.@+-]+$',
+                message='Invalid Second Name',
+            )
+        ]
+    )
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+
+
+class Subscribtion(models.Model):
+    """User subscription model."""
+    user = models.ForeignKey(
+        User,
+        related_name='subscriber',
+        verbose_name='Subscriber',
+        on_delete=models.CASCADE,
+    )
+    author = models.ForeignKey(
+        User,
+        related_name='author',
+        verbose_name='Author',
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        ordering = ['-id']
+        constraints = [
+            UniqueConstraint(fields=['user', 'author'],
+                             name='unique_subscription')
+        ]
+        verbose_name = 'Subscription'
+        verbose_name_plural = 'Subscriptions'
+
+
+# from django.contrib.auth.models import AbstractUser  # , UserManager
 # from django.core.validators import RegexValidator
-# from django.db import models
-
 # from .utils import check_input
-
-
-# class CustomUserManager(UserManager):
-#     """UserManager для кастомной модели пользователя."""
-#     def create_user(self, username, email, password, **extra_fields):
-#         """Проверяет данные и создает экземпляр модели пользователя."""
-#         check_input(username, email)
-#         return super().create_user(
-#             username=username, email=email, password=password, **extra_fields)
-
-#     def create_superuser(
-#             self, username, email, password, role='admin', **extra_fields):
-#         """Проверяет данные и создает экземпляр модели
-#         пользователя с правами администратора."""
-#         check_input(username, email)
-#         return super().create_superuser(
-#             username, email, password, role='admin', **extra_fields)
-
-
 # class User(AbstractUser):
-#     """Кастомная модель пользователя."""
+#     """Custom user model."""
 #     USER = 'user'
 #     ADMIN = 'admin'
-
 #     ROLE_CHOICES = (
 #         (USER, 'user'),
 #         (ADMIN, 'admin'),
 #     )
+
 #     username = models.CharField(
 #         db_index=True,
 #         max_length=150,
@@ -46,13 +89,26 @@
 #         choices=ROLE_CHOICES,
 #         default='user'
 #     )
-#     bio = models.TextField(
-#         'Biography',
-#         blank=True,
-#         max_length=3000,
+#     first_name = models.CharField(
+#         max_length=150,
+#         validators=[
+#             RegexValidator(
+#                 regex=r'^[\w.@+-]+$',
+#                 message='Invalid Username',
+#             )
+#         ]
 #     )
-#     objects = CustomUserManager()
-#     REQUIRED_FIELDS = ['email']
+#     second_name = models.CharField(
+#         max_length=150,
+#         validators=[
+#             RegexValidator(
+#                 regex=r'^[\w.@+-]+$',
+#                 message='Invalid Username',
+#             )
+#         ]
+#     )
+
+#     REQUIRED_FIELDS = ['email', 'username', 'first_name', 'last_name']
 
 #     @property
 #     def is_admin(self):

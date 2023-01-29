@@ -1,55 +1,40 @@
 from django.contrib import admin
+from django.contrib.admin import display
 
-import models
+from recipes import models
+
+
+@admin.register(models.Recipe)
+class RecipeAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'name', 'author', 'in_favourites')
+    list_filter = ('author', 'name', 'tags',)
+    readonly_fields = ('in_favourites',)
+
+    @display(description='Times added to favourite')
+    def in_favourites(self, obj):
+        return obj.favourites.count()
 
 
 @admin.register(models.Ingridient)
 class IngridientAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name')
-    search_fields = ('name',)
+    list_display = ('name', 'measurement')
 
 
 @admin.register(models.Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name')
-    search_fields = ('name',)
-
-
-@admin.register(models.Recipy)
-class RecipyAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name')
-    search_fields = ('name',)
+    list_display = ('name', 'color')
 
 
 @admin.register(models.IngridientValue)
 class IngridientValueAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name')
-    search_fields = ('name',)
+    list_display = ('recipe', 'ingridient', 'value')
 
 
 @admin.register(models.Cart)
 class CartAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name')
-    search_fields = ('name',)
+    list_display = ('user', 'ingridient')
 
 
 @admin.register(models.Favourites)
 class FavouritesAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name')
-    search_fields = ('name',)
-
-# @admin.register(Genre)
-# class GenreAdmin(admin.ModelAdmin):
-#     list_display = ('pk', 'name', 'slug')
-#     search_fields = ('name',)
-#     empty_value_display = '-пусто-'
-
-
-# @admin.register(Title)
-# class TitleAdmin(admin.ModelAdmin):
-#     list_display = ('pk', 'name', 'year',
-#                     'description', 'category')
-#     search_fields = ('name',)
-#     list_filter = ('year',)
-#     list_editable = ('category',)
-#     empty_value_display = '-пусто-'
+    list_display = ('user', 'recipe')

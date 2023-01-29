@@ -4,12 +4,11 @@ from django.db.models import UniqueConstraint
 
 from colorfield.fields import ColorField
 
-# from users.models import User
-from django.contrib.auth import get_user_model
-User = get_user_model()
+from users.models import User
 
 
 class Ingridient(models.Model):
+    """Model for Ingridient entity."""
     name = models.CharField(max_length=64)
     slug = models.SlugField(
         editable=False,
@@ -17,15 +16,21 @@ class Ingridient(models.Model):
     )
     measurement = models.TextField(max_length=64)
 
+    class Meta:
+        verbose_name = 'Ingridient'
+        verbose_name_plural = 'Ingridients'
+        ordering = ['name']
+
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name, allow_unicode=True)
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        return f'{self.name}, {self.measurement_unit}'
 
 
 class Tag(models.Model):
+    """Model for Tag entity."""
     name = models.CharField(max_length=64)
     slug = models.SlugField(
         editable=False,
@@ -33,6 +38,11 @@ class Tag(models.Model):
     )
     color = ColorField(default='#FF0000')
 
+    class Meta:
+        verbose_name = 'Tag'
+        verbose_name_plural = 'Tags'
+        ordering = ['name']
+
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name, allow_unicode=True)
         super().save(*args, **kwargs)
@@ -41,12 +51,13 @@ class Tag(models.Model):
         return self.name
 
 
-class Recipy(models.Model):
-    """Model for Recipy entity."""
+class Recipe(models.Model):
+    """Model for Recipe entity."""
     name = models.CharField(
         'Name',
         max_length=128,
-        blank=False
+        blank=False,
+        unique=True
     )
     slug = models.SlugField(
         editable=False,
@@ -57,6 +68,7 @@ class Recipy(models.Model):
         db_index=True,
         on_delete=models.CASCADE,
         related_name='recipes',
+        verbose_name='Author'
     )
     image = models.ImageField(
         upload_to='recipes/',
@@ -71,23 +83,24 @@ class Recipy(models.Model):
         through='IngridientValue',
         db_index=True,
         related_name='recipes',
+        verbose_name='Ingridients'
     )
     tags = models.ManyToManyField(
         Tag,
         db_index=True,
         related_name='recipes',
+        verbose_name='Tags'
     )
     time = models.PositiveIntegerField(
+        'Cooking time',
         max_length=3,
         blank=False,
     )
 
-    # def get_absolute_url(self):
-    #     kwargs = {
-    #         'pk': self.id,
-    #         'slug': self.slug
-    #     }
-    #     return reverse('article-pk-slug-detail', kwargs=kwargs)
+    class Meta:
+        ordering = ['-id']
+        verbose_name = 'Recipe'
+        verbose_name_plural = 'Recipes'
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name, allow_unicode=True)
@@ -96,26 +109,33 @@ class Recipy(models.Model):
     def __str__(self):
         return self.name
 
-    class Meta:
-        unique_together = ('name',)  # can be changed to unique in field
-        verbose_name_plural = "Recipes"
-
 
 class IngridientValue(models.Model):
     ingridient = models.ForeignKey(
         Ingridient,
         db_index=True,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
-    recipy = models.ForeignKey(
-        Recipy,
+    recipe = models.ForeignKey(
+        Recipe,
         db_index=True,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='ingredient_list',
     )
     value = models.PositiveIntegerField(
         max_length=3,
         blank=False,
     )
+
+    class Meta:
+        verbose_name = 'Ingridient Value in Recipe'
+        verbose_name_plural = 'Ingridients Values in Recipes'
+
+    def __str__(self):
+        return (
+            f'{self.ingredient.name} ({self.ingredient.measurement})'
+            f' - {self.value} '
+        )
 
 
 class Favourites(models.Model):
@@ -124,15 +144,18 @@ class Favourites(models.Model):
         related_name='favourites',
         on_delete=models.CASCADE
     )
-    recipy = models.ForeignKey(
-        Recipy,
+    recipe = models.ForeignKey(
+        Recipe,
         related_name='favourites',
         on_delete=models.CASCADE
     )
 
     class Meta:
-        constraints = [UniqueConstraint(fields=['user', 'recipy'],  # might be possible to do by unique together
+        verbose_name = 'Favourite'
+        verbose_name_plural = 'Favourites'
+        constraints = [UniqueConstraint(fields=['user', 'recipe'],
                                         name='unique_favourite')]
+        # might be possible to do by unique together
 
 
 class Cart(models.Model):
@@ -148,5 +171,10 @@ class Cart(models.Model):
     )
 
     class Meta:
+        verbose_name = 'Cart'
+        verbose_name_plural = 'Carts'
         constraints = [UniqueConstraint(fields=['user', 'ingridient'],
-                                        name='unique_favourite')]
+                                        name='unique_cart')]
+
+    def __str__(self):
+        return f'{self.user} added "{self.ingridient}" to his shopping cart'
