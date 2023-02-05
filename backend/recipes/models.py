@@ -7,8 +7,8 @@ from colorfield.fields import ColorField
 from users.models import User
 
 
-class Ingridient(models.Model):
-    """Model for Ingridient entity."""
+class Ingredient(models.Model):
+    """Model for Ingredient entity."""
     name = models.CharField(max_length=64)
     slug = models.SlugField(
         editable=False,
@@ -17,8 +17,8 @@ class Ingridient(models.Model):
     measurement = models.TextField(max_length=64)
 
     class Meta:
-        verbose_name = 'Ingridient'
-        verbose_name_plural = 'Ingridients'
+        verbose_name = 'Ingredient'
+        verbose_name_plural = 'Ingredients'
         ordering = ['name']
 
     def save(self, *args, **kwargs):
@@ -78,12 +78,12 @@ class Recipe(models.Model):
         max_length=8196,
         blank=False
     )
-    ingridients = models.ManyToManyField(
-        Ingridient,
-        through='IngridientValue',
+    ingredients = models.ManyToManyField(
+        Ingredient,
+        through='IngredientValue',
         db_index=True,
         related_name='recipes',
-        verbose_name='Ingridients'
+        verbose_name='Ingredients'
     )
     tags = models.ManyToManyField(
         Tag,
@@ -110,9 +110,9 @@ class Recipe(models.Model):
         return self.name
 
 
-class IngridientValue(models.Model):
-    ingridient = models.ForeignKey(
-        Ingridient,
+class IngredientValue(models.Model):
+    ingredient = models.ForeignKey(
+        Ingredient,
         db_index=True,
         on_delete=models.CASCADE,
     )
@@ -128,8 +128,8 @@ class IngridientValue(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Ingridient Value in Recipe'
-        verbose_name_plural = 'Ingridients Values in Recipes'
+        verbose_name = 'Ingredient Value in Recipe'
+        verbose_name_plural = 'Ingredients Values in Recipes'
 
     def __str__(self):
         return (
@@ -165,7 +165,7 @@ class Cart(models.Model):
         on_delete=models.CASCADE
     )
     ingridient = models.ForeignKey(
-        Ingridient,
+        Ingredient,
         related_name='cart',
         on_delete=models.CASCADE,
     )
@@ -173,8 +173,8 @@ class Cart(models.Model):
     class Meta:
         verbose_name = 'Cart'
         verbose_name_plural = 'Carts'
-        constraints = [UniqueConstraint(fields=['user', 'ingridient'],
+        constraints = [UniqueConstraint(fields=['user', 'ingredient'],
                                         name='unique_cart')]
 
     def __str__(self):
-        return f'{self.user} added "{self.ingridient}" to his shopping cart'
+        return f'{self.user} added "{self.ingredient}" to his shopping cart'

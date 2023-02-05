@@ -16,7 +16,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.Ingridient)
-class IngridientAdmin(admin.ModelAdmin):
+class IngredientAdmin(admin.ModelAdmin):
     list_display = ('name', 'measurement')
 
 
@@ -26,13 +26,13 @@ class TagAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.IngridientValue)
-class IngridientValueAdmin(admin.ModelAdmin):
-    list_display = ('recipe', 'ingridient', 'value')
+class IngredientValueAdmin(admin.ModelAdmin):
+    list_display = ('recipe', 'ingredient', 'value')
 
 
 @admin.register(models.Cart)
 class CartAdmin(admin.ModelAdmin):
-    list_display = ('user', 'ingridient')
+    list_display = ('user', 'ingredient')
 
 
 @admin.register(models.Favourites)
