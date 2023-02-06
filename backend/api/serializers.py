@@ -4,7 +4,7 @@ from django.db.models import F
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import Ingredient, IngredientInRecipe, Recipe, Tag
+from recipes.models import Ingredient, IngredientValue, Recipe, Tag
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import IntegerField, SerializerMethodField
@@ -147,7 +147,7 @@ class IngredientInRecipeWriteSerializer(ModelSerializer):
     id = IntegerField(write_only=True)
 
     class Meta:
-        model = IngredientInRecipe
+        model = IngredientValue
         fields = ('id', 'amount')
 
 
@@ -208,8 +208,8 @@ class RecipeWriteSerializer(ModelSerializer):
 
     @transaction.atomic
     def create_ingredients_amounts(self, ingredients, recipe):
-        IngredientInRecipe.objects.bulk_create(
-            [IngredientInRecipe(
+        IngredientValue().objects.bulk_create(
+            [IngredientValue(
                 ingredient=Ingredient.objects.get(id=ingredient['id']),
                 recipe=recipe,
                 amount=ingredient['amount']

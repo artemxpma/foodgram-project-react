@@ -93,7 +93,6 @@ class Recipe(models.Model):
     )
     time = models.PositiveIntegerField(
         'Cooking time',
-        max_length=3,
         blank=False,
     )
 
@@ -111,6 +110,7 @@ class Recipe(models.Model):
 
 
 class IngredientValue(models.Model):
+    """Model for value of each ingredient in recipe entity."""
     ingredient = models.ForeignKey(
         Ingredient,
         db_index=True,
@@ -123,7 +123,6 @@ class IngredientValue(models.Model):
         related_name='ingredient_list',
     )
     value = models.PositiveIntegerField(
-        max_length=3,
         blank=False,
     )
 
@@ -139,6 +138,7 @@ class IngredientValue(models.Model):
 
 
 class Favourites(models.Model):
+    """Model for Favourites entity."""
     user = models.ForeignKey(
         User,
         related_name='favourites',
@@ -155,16 +155,16 @@ class Favourites(models.Model):
         verbose_name_plural = 'Favourites'
         constraints = [UniqueConstraint(fields=['user', 'recipe'],
                                         name='unique_favourite')]
-        # might be possible to do by unique together
 
 
 class Cart(models.Model):
+    """Model for Cart entity."""
     user = models.ForeignKey(
         User,
         related_name='cart',
         on_delete=models.CASCADE
     )
-    ingridient = models.ForeignKey(
+    ingredient = models.ForeignKey(
         Ingredient,
         related_name='cart',
         on_delete=models.CASCADE,

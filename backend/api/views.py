@@ -12,10 +12,10 @@ from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from recipes.models import (Ingridient, Recipe, Tag,
-                            Favourites, Cart, IngridientValue)
+from recipes.models import (Ingredient, Recipe, Tag,
+                            Favourites, Cart, IngredientValue)
 from users.models import Subscribtion
-from .filters import IngridientFilter, RecipeFilter
+from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from .serializers import CustomUserSerializer, SubscribtionSerializer
@@ -28,6 +28,7 @@ User = get_user_model()
 
 
 class CustomUserViewSet(UserViewSet):
+    """View set for User actions."""
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
     pagination_class = CustomPagination
@@ -71,21 +72,24 @@ class CustomUserViewSet(UserViewSet):
         return self.get_paginated_response(serializer.data)
 
 
-class IngridientViewSet(ReadOnlyModelViewSet):
-    queryset = Ingridient.objects.all()
+class IngredientViewSet(ReadOnlyModelViewSet):
+    """View set for Ingredient actions."""
+    queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
-    filterset_class = IngridientFilter
+    # filterset_class = IngredientFilter
 
 
 class TagViewSet(ReadOnlyModelViewSet):
+    """View set for Tag actions."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (IsAdminOrReadOnly,)
 
 
 class RecipeViewSet(ModelViewSet):
+    """View set for Recipe actions."""
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthorOrReadOnly | IsAdminOrReadOnly,)
     pagination_class = CustomPagination
@@ -153,7 +157,7 @@ class RecipeViewSet(ModelViewSet):
         if not user.shopping_cart.exists():
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        ingredients = IngridientValue.objects.filter(
+        ingredients = IngredientValue.objects.filter(
             recipe__shopping_cart__user=request.user
         ).values(
             'ingredient__name',

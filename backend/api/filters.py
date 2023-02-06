@@ -4,9 +4,11 @@ from recipes.models import Recipe, Tag  # Ingredient,
 # from users.models import User
 
 
-class IngredientFilter(filters.SearchFilter):
-    search_param = 'name'
-    # name = filters.CharFilter(lookup_expr='startswith')
+class IngredientFilter():
+    """Custom filter for Ingredient model."""
+    pass
+#     search_param = 'name'
+#     # name = filters.CharFilter(lookup_expr='startswith')
 
     # class Meta:
     #     model = Ingredient
@@ -14,6 +16,7 @@ class IngredientFilter(filters.SearchFilter):
 
 
 class RecipeFilter(FilterSet):
+    """Custom filter for Recipe model."""
     tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
         to_field_name='slug',

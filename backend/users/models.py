@@ -1,10 +1,7 @@
 from django.db import models
 from django.db.models import UniqueConstraint
-# from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
-
-# User = get_user_model()
 
 
 class User(AbstractUser):
@@ -60,56 +57,3 @@ class Subscribtion(models.Model):
         ]
         verbose_name = 'Subscription'
         verbose_name_plural = 'Subscriptions'
-
-
-# from django.contrib.auth.models import AbstractUser  # , UserManager
-# from django.core.validators import RegexValidator
-# from .utils import check_input
-# class User(AbstractUser):
-#     """Custom user model."""
-#     USER = 'user'
-#     ADMIN = 'admin'
-#     ROLE_CHOICES = (
-#         (USER, 'user'),
-#         (ADMIN, 'admin'),
-#     )
-
-#     username = models.CharField(
-#         db_index=True,
-#         max_length=150,
-#         unique=True,
-#         validators=[
-#             RegexValidator(
-#                 regex=r'^[\w.@+-]+$',
-#                 message='Invalid Username',
-#             )
-#         ]
-#     )
-#     role = models.TextField(
-#         choices=ROLE_CHOICES,
-#         default='user'
-#     )
-#     first_name = models.CharField(
-#         max_length=150,
-#         validators=[
-#             RegexValidator(
-#                 regex=r'^[\w.@+-]+$',
-#                 message='Invalid Username',
-#             )
-#         ]
-#     )
-#     second_name = models.CharField(
-#         max_length=150,
-#         validators=[
-#             RegexValidator(
-#                 regex=r'^[\w.@+-]+$',
-#                 message='Invalid Username',
-#             )
-#         ]
-#     )
-
-#     REQUIRED_FIELDS = ['email', 'username', 'first_name', 'last_name']
-
-#     @property
-#     def is_admin(self):
-#         return self.role == User.ADMIN

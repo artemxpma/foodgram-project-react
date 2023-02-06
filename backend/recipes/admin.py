@@ -15,7 +15,7 @@ class RecipeAdmin(admin.ModelAdmin):
         return obj.favourites.count()
 
 
-@admin.register(models.Ingridient)
+@admin.register(models.Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('name', 'measurement')
 
@@ -25,7 +25,7 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'color')
 
 
-@admin.register(models.IngridientValue)
+@admin.register(models.IngredientValue)
 class IngredientValueAdmin(admin.ModelAdmin):
     list_display = ('recipe', 'ingredient', 'value')
 
