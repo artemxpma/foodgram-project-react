@@ -6,7 +6,7 @@ from .views import (
 )
 
 
-app_name = 'users'
+app_name = 'api'
 
 router = DefaultRouter()
 
