@@ -17,7 +17,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
 @admin.register(models.Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('name', 'measurement')
+    list_display = ('name', 'measurement_unit')
 
 
 @admin.register(models.Tag)

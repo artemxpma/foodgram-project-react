@@ -1,2 +1,9 @@
-# praktikum_new_diplom
-color field
+filters
+serializers
+redoc/static
+test
+
+cloud
+admin user
+
+readme

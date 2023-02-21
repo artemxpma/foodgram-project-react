@@ -14,7 +14,7 @@ class Ingredient(models.Model):
         editable=False,
         blank=False
     )
-    measurement = models.TextField(max_length=64)
+    measurement_unit = models.TextField(max_length=64)
 
     class Meta:
         verbose_name = 'Ingredient'

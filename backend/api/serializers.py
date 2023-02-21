@@ -4,13 +4,13 @@ from django.db.models import F
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import Ingredient, IngredientValue, Recipe, Tag
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import IntegerField, SerializerMethodField
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import ModelSerializer
 
+from recipes.models import Ingredient, IngredientValue, Recipe, Tag
 from users.models import Subscribtion
 
 
@@ -62,12 +62,12 @@ class SubscribtionSerializer(CustomUserSerializer):
         user = self.context.get('request').user
         if Subscribtion.objects.filter(author=author, user=user).exists():
             raise ValidationError(
-                detail='Вы уже подписаны на этого пользователя!',
+                detail='You are already subscribed',
                 code=status.HTTP_400_BAD_REQUEST
             )
         if user == author:
             raise ValidationError(
-                detail='Вы не можете подписаться на самого себя!',
+                detail='You can not subscrive to yourself',
                 code=status.HTTP_400_BAD_REQUEST
             )
         return data
@@ -175,18 +175,18 @@ class RecipeWriteSerializer(ModelSerializer):
         ingredients = value
         if not ingredients:
             raise ValidationError({
-                'ingredients': 'Нужен хотя бы один ингредиент!'
+                'ingredients': 'At least one ingridient needed'
             })
         ingredients_list = []
         for item in ingredients:
             ingredient = get_object_or_404(Ingredient, id=item['id'])
             if ingredient in ingredients_list:
                 raise ValidationError({
-                    'ingredients': 'Ингридиенты не могут повторяться!'
+                    'ingredients': 'Ingridients should be unique'
                 })
             if int(item['amount']) <= 0:
                 raise ValidationError({
-                    'amount': 'Количество ингредиента должно быть больше 0!'
+                    'amount': 'Amount should be > 0'
                 })
             ingredients_list.append(ingredient)
         return value
@@ -195,13 +195,13 @@ class RecipeWriteSerializer(ModelSerializer):
         tags = value
         if not tags:
             raise ValidationError({
-                'tags': 'Нужно выбрать хотя бы один тег!'
+                'tags': 'At least one tag needed'
             })
         tags_list = []
         for tag in tags:
             if tag in tags_list:
                 raise ValidationError({
-                    'tags': 'Теги должны быть уникальными!'
+                    'tags': 'Tags should be unique'
                 })
             tags_list.append(tag)
         return value

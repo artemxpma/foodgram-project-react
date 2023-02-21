@@ -1,18 +1,15 @@
 from django_filters.rest_framework import FilterSet, filters
 
-from recipes.models import Recipe, Tag  # Ingredient,
-# from users.models import User
+from recipes.models import Recipe, Tag, Ingredient
 
 
-class IngredientFilter():
+class IngredientFilter(FilterSet):
     """Custom filter for Ingredient model."""
-    pass
-#     search_param = 'name'
-#     # name = filters.CharFilter(lookup_expr='startswith')
+    name = filters.CharFilter(lookup_expr='istartswith')
 
-    # class Meta:
-    #     model = Ingredient
-    #     fields = ['name']
+    class Meta:
+        model = Ingredient
+        fields = ('name',)
 
 
 class RecipeFilter(FilterSet):
@@ -40,5 +37,5 @@ class RecipeFilter(FilterSet):
     def filter_is_in_cart(self, queryset, name, value):
         user = self.request.user
         if value and not user.is_anonymous:
-            return queryset.filter(cart__user=user)
+            return queryset.filter(shopping_cart__user=user)
         return queryset
