@@ -134,3 +134,4 @@ dmypy.json
 # code
 .vscode
 
+data/
