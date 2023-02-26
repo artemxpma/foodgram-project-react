@@ -100,10 +100,9 @@ class RecipeViewSet(ModelViewSet):
         serializer.save(author=self.request.user)
 
     def get_serializer_class(self):
-        return (RecipeReadSerializer if self.request.method in SAFE_METHODS
-                else RecipeWriteSerializer)
-        # if self.request.method in SAFE_METHODS:
-        # return RecipeWriteSerializer
+        if self.request.method in SAFE_METHODS:
+            return RecipeReadSerializer
+        return RecipeWriteSerializer
 
     @action(
         detail=True,
@@ -111,12 +110,10 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=[IsAuthenticated]
     )
     def favourite(self, request, pk):
-        return (self.add_to(Favourites, request.user, pk)
-                if request.method == 'POST'
-                else self.delete_from(Favourites, request.user, pk))
-        # if request.method == 'POST':
-        # else:
-        #     return self.delete_from(Favourites, request.user, pk)
+        if request.method == 'POST':
+            return self.add_to(Favourites, request.user, pk)
+        else:
+            return self.delete_from(Favourites, request.user, pk)
 
     @action(
         detail=True,
@@ -124,12 +121,10 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=[IsAuthenticated]
     )
     def shopping_cart(self, request, pk):
-        # if request.method == 'POST':
-        #     return self.add_to(Cart, request.user, pk)
-        # else:
-        #     return self.delete_from(Cart, request.user, pk)
-        return (self.add_to(Cart, request.user, pk) if request.method == 'POST'
-                else self.delete_from(Cart, request.user, pk))
+        if request.method == 'POST':
+            return self.add_to(Cart, request.user, pk)
+        else:
+            return self.delete_from(Cart, request.user, pk)
 
     def add_to(self, model, user, pk):
         if model.objects.filter(user=user, recipe__id=pk).exists():

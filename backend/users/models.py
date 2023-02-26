@@ -53,7 +53,7 @@ class Subscribtion(models.Model):
     )
 
     class Meta:
-        ordering = ['-id']
+        ordering = ['-author_id']
         constraints = [
             UniqueConstraint(fields=['user', 'author'],
                              name='unique_subscription')

@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.text import slugify
 from django.db.models import UniqueConstraint
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 from colorfield.fields import ColorField
 
@@ -38,14 +39,14 @@ class Tag(models.Model):
     )
     color = ColorField(default='#FF0000')
 
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name, allow_unicode=True)
+        super().save(*args, **kwargs)
+
     class Meta:
         verbose_name = 'Tag'
         verbose_name_plural = 'Tags'
         ordering = ['name']
-
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.name, allow_unicode=True)
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -94,6 +95,10 @@ class Recipe(models.Model):
     time = models.PositiveIntegerField(
         'Cooking time',
         blank=False,
+        validators=[
+            MaxValueValidator(360),
+            MinValueValidator(5)
+        ]
     )
 
     class Meta:
@@ -124,9 +129,14 @@ class IngredientValue(models.Model):
     )
     value = models.PositiveIntegerField(
         blank=False,
+        validators=[
+            MaxValueValidator(10000),
+            MinValueValidator(1)
+        ]
     )
 
     class Meta:
+        ordering = ['ingredient']
         verbose_name = 'Ingredient Value in Recipe'
         verbose_name_plural = 'Ingredients Values in Recipes'
 
@@ -151,10 +161,14 @@ class Favourites(models.Model):
     )
 
     class Meta:
+        ordering = ['user']
         verbose_name = 'Favourite'
         verbose_name_plural = 'Favourites'
         constraints = [UniqueConstraint(fields=['user', 'recipe'],
                                         name='unique_favourite')]
+
+    def __str__(self):
+        return f'{self.user} favourite recipes'
 
 
 class Cart(models.Model):
@@ -171,6 +185,7 @@ class Cart(models.Model):
     )
 
     class Meta:
+        ordering = ['user']
         verbose_name = 'Cart'
         verbose_name_plural = 'Carts'
         constraints = [UniqueConstraint(fields=['user', 'ingredient'],

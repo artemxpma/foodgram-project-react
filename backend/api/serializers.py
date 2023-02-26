@@ -177,7 +177,7 @@ class RecipeWriteSerializer(ModelSerializer):
             raise ValidationError({
                 'ingredients': 'At least one ingridient needed'
             })
-        ingredients_list = []
+        ingredients_list = set()
         for item in ingredients:
             ingredient = get_object_or_404(Ingredient, id=item['id'])
             if ingredient in ingredients_list:
@@ -197,13 +197,10 @@ class RecipeWriteSerializer(ModelSerializer):
             raise ValidationError({
                 'tags': 'At least one tag needed'
             })
-        tags_list = []
-        for tag in tags:
-            if tag in tags_list:
-                raise ValidationError({
-                    'tags': 'Tags should be unique'
-                })
-            tags_list.append(tag)
+        if len(tags) > len(set(tags)):
+            raise ValidationError({
+                'tags': 'Tags should be unique'
+            })
         return value
 
     @transaction.atomic

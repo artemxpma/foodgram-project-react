@@ -4,11 +4,17 @@ from django.contrib.admin import display
 from recipes import models
 
 
+class RecipeIngredientInline(admin.TabularInline):
+    model = models.Ingredient
+    min_num = 1
+
+
 @admin.register(models.Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'author', 'in_favourites')
     list_filter = ('author', 'name', 'tags',)
     readonly_fields = ('in_favourites',)
+    inlines = (RecipeIngredientInline, )
 
     @display(description='Times added to favourite')
     def in_favourites(self, obj):
