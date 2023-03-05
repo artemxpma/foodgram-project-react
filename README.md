@@ -25,7 +25,13 @@ Run ```docker-compose exec backend bash``` and then
 python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py collectstatic && python3 manage.py load_json ingredients.json && python3 manage.py createsuperuser  
 ```  
 
+### API
+Documentations with example requests and responses availiable at   
+51.250.4.136/api/docs/redoc  
+  
+### Author:
 Artem Sinitsyn, Ya.Practicum.   
 v1.2  
-  
-Availiable at 51.250.4.136/
+
+### Check it out at...  
+51.250.4.136/
