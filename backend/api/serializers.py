@@ -10,7 +10,8 @@ from rest_framework.fields import IntegerField, SerializerMethodField
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import ModelSerializer
 
-from recipes.models import Ingredient, IngredientValue, Recipe, Tag
+from recipes.models import (Ingredient, IngredientValue, Recipe,
+                            Tag, Cart, Favorites)
 from users.models import Subscribtion
 
 
@@ -126,7 +127,7 @@ class RecipeReadSerializer(ModelSerializer):
             'id',
             'name',
             'measurement_unit',
-            amount=F('ingredientinrecipe__amount')
+            amount=F('ingredientvalue__amount')
         )
         return ingredients
 
@@ -134,13 +135,19 @@ class RecipeReadSerializer(ModelSerializer):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
-        return user.favorites.filter(recipe=obj).exists()
+        # return user.favorites.exists()
+        return Favorites.objects.filter(
+                user=self.context['request'].user,
+                recipe=obj).exists()
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
-        return user.shopping_cart.filter(recipe=obj).exists()
+        # return user.shopping_cart.exists()
+        return Cart.objects.filter(
+                user=self.context['request'].user,
+                recipe=obj).exists()
 
 
 class IngredientInRecipeWriteSerializer(ModelSerializer):
@@ -188,7 +195,7 @@ class RecipeWriteSerializer(ModelSerializer):
                 raise ValidationError({
                     'amount': 'Amount should be > 0'
                 })
-            ingredients_list.append(ingredient)
+            ingredients_list.add(ingredient)
         return value
 
     def validate_tags(self, value):
@@ -205,7 +212,7 @@ class RecipeWriteSerializer(ModelSerializer):
 
     @transaction.atomic
     def create_ingredients_amounts(self, ingredients, recipe):
-        IngredientValue().objects.bulk_create(
+        IngredientValue.objects.bulk_create(
             [IngredientValue(
                 ingredient=Ingredient.objects.get(id=ingredient['id']),
                 recipe=recipe,

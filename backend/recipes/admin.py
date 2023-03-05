@@ -5,20 +5,20 @@ from recipes import models
 
 
 class RecipeIngredientInline(admin.TabularInline):
-    model = models.Ingredient
+    model = models.IngredientValue
     min_num = 1
 
 
 @admin.register(models.Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'author', 'in_favourites')
+    list_display = ('pk', 'name', 'author', 'in_favorites')
     list_filter = ('author', 'name', 'tags',)
-    readonly_fields = ('in_favourites',)
+    readonly_fields = ('in_favorites',)
     inlines = (RecipeIngredientInline, )
 
-    @display(description='Times added to favourite')
-    def in_favourites(self, obj):
-        return obj.favourites.count()
+    @display(description='Times added to favorite')
+    def in_favorites(self, obj):
+        return obj.favorites.count()
 
 
 @admin.register(models.Ingredient)
@@ -33,14 +33,14 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(models.IngredientValue)
 class IngredientValueAdmin(admin.ModelAdmin):
-    list_display = ('recipe', 'ingredient', 'value')
+    list_display = ('recipe', 'ingredient', 'amount')
 
 
 @admin.register(models.Cart)
 class CartAdmin(admin.ModelAdmin):
-    list_display = ('user', 'ingredient')
+    list_display = ('user', 'recipe')
 
 
-@admin.register(models.Favourites)
-class FavouritesAdmin(admin.ModelAdmin):
+@admin.register(models.Favorites)
+class FavoritesAdmin(admin.ModelAdmin):
     list_display = ('user', 'recipe')

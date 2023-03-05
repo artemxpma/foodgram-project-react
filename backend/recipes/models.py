@@ -12,8 +12,8 @@ class Ingredient(models.Model):
     """Model for Ingredient entity."""
     name = models.CharField(max_length=64)
     slug = models.SlugField(
+        max_length=100,
         editable=False,
-        blank=False
     )
     measurement_unit = models.TextField(max_length=64)
 
@@ -34,8 +34,8 @@ class Tag(models.Model):
     """Model for Tag entity."""
     name = models.CharField(max_length=64)
     slug = models.SlugField(
+        max_length=100,
         editable=False,
-        blank=False
     )
     color = ColorField(default='#FF0000')
 
@@ -57,12 +57,11 @@ class Recipe(models.Model):
     name = models.CharField(
         'Name',
         max_length=128,
-        blank=False,
         unique=True
     )
     slug = models.SlugField(
+        max_length=100,
         editable=False,
-        blank=False
     )
     author = models.ForeignKey(
         User,
@@ -73,11 +72,9 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         upload_to='recipes/',
-        blank=False
     )
-    description = models.TextField(
+    text = models.TextField(
         max_length=8196,
-        blank=False
     )
     ingredients = models.ManyToManyField(
         Ingredient,
@@ -92,12 +89,11 @@ class Recipe(models.Model):
         related_name='recipes',
         verbose_name='Tags'
     )
-    time = models.PositiveIntegerField(
+    cooking_time = models.IntegerField(
         'Cooking time',
-        blank=False,
         validators=[
-            MaxValueValidator(360),
-            MinValueValidator(5)
+            MaxValueValidator(6000),
+            MinValueValidator(1)
         ]
     )
 
@@ -127,8 +123,7 @@ class IngredientValue(models.Model):
         on_delete=models.CASCADE,
         related_name='ingredient_list',
     )
-    value = models.PositiveIntegerField(
-        blank=False,
+    amount = models.IntegerField(
         validators=[
             MaxValueValidator(10000),
             MinValueValidator(1)
@@ -142,45 +137,45 @@ class IngredientValue(models.Model):
 
     def __str__(self):
         return (
-            f'{self.ingredient.name} ({self.ingredient.measurement})'
-            f' - {self.value} '
+            f'{self.ingredient.name} ({self.ingredient.measurement_unit})'
+            f' - {self.amount} '
         )
 
 
-class Favourites(models.Model):
-    """Model for Favourites entity."""
+class Favorites(models.Model):
+    """Model for Favorites entity."""
     user = models.ForeignKey(
         User,
-        related_name='favourites',
+        related_name='favorites',
         on_delete=models.CASCADE
     )
     recipe = models.ForeignKey(
         Recipe,
-        related_name='favourites',
+        related_name='favorites',
         on_delete=models.CASCADE
     )
 
     class Meta:
         ordering = ['user']
-        verbose_name = 'Favourite'
-        verbose_name_plural = 'Favourites'
+        verbose_name = 'Favorite'
+        verbose_name_plural = 'Favorites'
         constraints = [UniqueConstraint(fields=['user', 'recipe'],
-                                        name='unique_favourite')]
+                                        name='unique_favorite')]
 
     def __str__(self):
-        return f'{self.user} favourite recipes'
+        return f'{self.user} favorite recipes'
 
 
 class Cart(models.Model):
     """Model for Cart entity."""
     user = models.ForeignKey(
         User,
-        related_name='cart',
+        related_name='shopping_cart',
         on_delete=models.CASCADE
     )
-    ingredient = models.ForeignKey(
-        Ingredient,
-        related_name='cart',
+    recipe = models.ForeignKey(
+        Recipe,
+        related_name='shopping_cart',
         on_delete=models.CASCADE,
     )
 
@@ -188,8 +183,8 @@ class Cart(models.Model):
         ordering = ['user']
         verbose_name = 'Cart'
         verbose_name_plural = 'Carts'
-        constraints = [UniqueConstraint(fields=['user', 'ingredient'],
+        constraints = [UniqueConstraint(fields=['user', 'recipe'],
                                         name='unique_cart')]
 
     def __str__(self):
-        return f'{self.user} added "{self.ingredient}" to his shopping cart'
+        return f'{self.user} added "{self.recipe}" to his shopping cart'

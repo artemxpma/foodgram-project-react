@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from recipes.models import (Ingredient, Recipe, Tag,
-                            Favourites, Cart, IngredientValue)
+                            Favorites, Cart, IngredientValue)
 from users.models import Subscribtion
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
@@ -109,11 +109,11 @@ class RecipeViewSet(ModelViewSet):
         methods=['post', 'delete'],
         permission_classes=[IsAuthenticated]
     )
-    def favourite(self, request, pk):
+    def favorite(self, request, pk):
         if request.method == 'POST':
-            return self.add_to(Favourites, request.user, pk)
+            return self.add_to(Favorites, request.user, pk)
         else:
-            return self.delete_from(Favourites, request.user, pk)
+            return self.delete_from(Favorites, request.user, pk)
 
     @action(
         detail=True,
@@ -149,7 +149,7 @@ class RecipeViewSet(ModelViewSet):
     )
     def download_shopping_cart(self, request):
         user = request.user
-        if not user.cart.exists():
+        if not user.shopping_cart.exists():
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         ingredients = IngredientValue.objects.filter(
